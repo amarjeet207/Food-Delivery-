@@ -8,6 +8,17 @@ const Body = () => {
   const [isFastDeliveryApplied, setFastDeliveryApplied] = useState(false);
   const [isRatingsApplied, setRatingsApplied] = useState(false);
 
+
+  //useEffect---
+  // useEffect(() => {
+  //   first
+  
+  //   return () => {
+  //     second
+  //   }
+  // }, [third])
+  
+
   // Function to apply Ratings filter (4+ ratings)
   
   function handleRatings() {
