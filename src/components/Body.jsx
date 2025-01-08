@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState,useEffect } from 'react';
 import RestaurantCard from './RestaurantCard';
 import { Restaurants } from '../Utilities/Data';
 import close from "../assets/close.png";
@@ -7,44 +7,43 @@ const Body = () => {
   const [filterRestaurants, setFilterRestaurants] = useState(Restaurants);
   const [isFastDeliveryApplied, setFastDeliveryApplied] = useState(false);
   const [isRatingsApplied, setRatingsApplied] = useState(false);
+  const [isPureVegApplied, setPureVegApplied] = useState(false);
 
 
   //useEffect---
-  // useEffect(() => {
-  //   first
-  
-  //   return () => {
-  //     second
-  //   }
-  // }, [third])
+  useEffect(() => {
+    let result = Restaurants;
+
+    if(isRatingsApplied){
+      result = result.filter(Restaurant =>Restaurant.ratings >= 4);
+    }
+
+    if(isFastDeliveryApplied){
+       result = result.filter(Restaurant => Restaurant.duration.split('-')[1] <= 35 );
+    }
+
+    if(isPureVegApplied){
+      result = result.filter(Restaurant => Restaurant.veg === "pure")
+    }
+
+    setFilterRestaurants(result);
+    
+  }, [isRatingsApplied,isFastDeliveryApplied,isPureVegApplied])
   
 
   // Function to apply Ratings filter (4+ ratings)
   
   function handleRatings() {
-    const result = Restaurants.filter(Restaurant =>Restaurant.ratings >= 4);
-    setRatingsApplied(true);
-    
-    if (isFastDeliveryApplied) {
-      const filteredResult = result.filter(r => filterRestaurants.includes(r));
-      setFilterRestaurants(filteredResult);
-    } else {
-      setFilterRestaurants(result);
-    }
+    setRatingsApplied(!isRatingsApplied);
   }
-
 
   // Function to apply Fast Delivery filter
   function handleFastDelivery() {
-    const result = Restaurants.filter(Restaurant => Restaurant.duration.split('-')[1] <= 35 );
-    setFastDeliveryApplied(true);
-    
-    if (isRatingsApplied) {
-      const filteredResult = result.filter(r => filterRestaurants.includes(r));
-      setFilterRestaurants(filteredResult);
-    } else {
-      setFilterRestaurants(result);
-    }
+    setFastDeliveryApplied(!isFastDeliveryApplied);
+  }
+
+  function handlePureVeg(){
+    setPureVegApplied(!isPureVegApplied)
   }
 
   // Function to handle closing any filter
@@ -52,19 +51,14 @@ const Body = () => {
     const filterType = e.target.id;
     if (filterType === 'fastClose') {
       setFastDeliveryApplied(false);
-      if (isRatingsApplied) {
-        setFilterRestaurants(Restaurants.filter(Restaurant => Restaurant.ratings >= 4));
-      } else {
-        setFilterRestaurants(Restaurants); // Reset to all restaurants if no filter applied
-      }
-    } else if (filterType === 'ratingClose') {
+    } 
+    else if (filterType === 'ratingClose') {
       setRatingsApplied(false);
-      if (isFastDeliveryApplied) {
-        setFilterRestaurants(Restaurants.filter(Restaurant => Restaurant.duration.split('-')[1] <= 35 ));
-      } else {
-        setFilterRestaurants(Restaurants); // Reset to all restaurants if no filter applied
-      }
     }
+    else if (filterType === 'pureVegClose') {
+      setPureVegApplied(false);
+    }
+    
   }
 
 
@@ -73,26 +67,32 @@ const Body = () => {
     <div className="font-serif mt-14 ml-36 mr-28">
       <h1 className="text-2xl font-bold">Restaurants with online food delivery</h1>
 
-      <div className="flex gap-6 mt-8">
+      <div className="flex gap-6 mt-6">
         <span className="cursor-pointer border-2 border-slate-500 pt-1 pb-1 pr-4 pl-4 rounded-full shadow-md flex items-center gap-2">
-          <p onClick={handleFastDelivery}>Fast Delivery</p>
+          <p onClick={handleFastDelivery} className="text-gray-800">Fast Delivery</p>
           {isFastDeliveryApplied && (
             <img src={close} className="w-4" onClick={handleRemoveFilter} id="fastClose" />
           )}
         </span>
 
-        <span className="cursor-pointer border-2 border-slate-500 pt-1 pb-1 pr-4 pl-4 rounded-full shadow-md">Sort By</span>
+        <span className="cursor-pointer border-2 border-slate-500 pt-1 pb-1 pr-4 pl-4 rounded-full shadow-md text-gray-800">Sort By</span>
 
         <span className="cursor-pointer border-2 border-slate-500 pt-1 pb-1 pr-4 pl-4 rounded-full shadow-md flex items-center gap-2">
-          <p onClick={handleRatings}>Ratings 4.0+</p>
+          <p onClick={handleRatings} className="text-gray-800">Ratings 4.0+</p>
           {isRatingsApplied && (
             <img src={close} className="w-4" onClick={handleRemoveFilter} id="ratingClose" />
           )}
         </span>
 
-        <span className="cursor-pointer border-2 border-slate-500 pt-1 pb-1 pr-4 pl-4 rounded-full shadow-md">Offers</span>
-        <span className="cursor-pointer border-2 border-slate-500 pt-1 pb-1 pr-4 pl-4 rounded-full shadow-md">Less than 300</span>
-        <span className="cursor-pointer border-2 border-slate-500 pt-1 pb-1 pr-4 pl-4 rounded-full shadow-md">Pure Veg</span>
+        <span className="cursor-pointer border-2 border-slate-500 pt-1 pb-1 pr-4 pl-4 rounded-full shadow-md text-gray-800">Offers</span>
+        <span className="cursor-pointer border-2 border-slate-500 pt-1 pb-1 pr-4 pl-4 rounded-full shadow-md text-gray-800">Less than 300</span>
+        <span className="cursor-pointer border-2 border-slate-500 pt-1 pb-1 pr-4 pl-4 rounded-full shadow-md flex items-center gap-2">
+        <p onClick={handlePureVeg} className="text-gray-800">Pure Veg</p>
+        {isPureVegApplied && (
+            <img src={close} className="w-4" onClick={handleRemoveFilter} id="pureVegClose" />
+          )}
+        
+        </span>
       </div>
 
       <p className="grid grid-cols-4">
